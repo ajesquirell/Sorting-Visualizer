@@ -32,6 +32,8 @@ public:
 	};
 
 private:
+	int nMaxArrayValue = 200;
+
 	int nValueAmt; // Number of random numbers to sort
 	int* pValueArray; //Array to hold random values
 
@@ -46,7 +48,7 @@ public:
 	bool OnUserCreate() override
 	{
 		srand(time(0)); // Seed the rng with time
-		nValueAmt = 100; //For now this NEEDS to match max value of values we want to be able to have
+		nValueAmt = nMaxArrayValue; //For now this NEEDS to match max value of values we want to be able to have
 		pValueArray = new int[nValueAmt];
 		CreateNewArray();
 
@@ -78,6 +80,7 @@ public:
 		//Input
 		if (IsFocused())
 		{
+			/*============== RANDOMIZE BUTTON===================*/
 			if (GetMouseX() >= 10 && GetMouseX() <= 160 && GetMouseY() >= 10 && GetMouseY() <= 60)
 			{
 				FillRect(11, 11, 149, 49, olc::DARK_BLUE);
@@ -86,8 +89,7 @@ public:
 					CreateNewArray(); //Later pass in value for selected array size
 				}
 			}
-
-
+			/*==================================================*/
 
 			// Pythagorian Theorem to find if mouse is within slider handle radius
 			if (sqrt(((GetMouseX() - sliderHandle.x) * (GetMouseX() - sliderHandle.x)) + ((GetMouseY() - sliderHandle.y) * (GetMouseY() - sliderHandle.y))) <= sliderHandle.r)
@@ -98,6 +100,9 @@ public:
 
 			if (!GetMouse(0).bHeld) // Stop tracking mouse movement to move slider handle
 				bMovingSlider = false;
+
+			/*if (GetMouseX() > sliderBar.x + sliderBar.w + sliderHandle.r || GetMouseX() < sliderBar.x - sliderHandle.r)
+				bMovingSlider = false;*/
 
 			if (bMovingSlider) // This is here so that mouse does not have to stay within slider handle circle to move it
 			{
@@ -113,7 +118,7 @@ public:
 		}
 
 		// Adjust nValueAmt based on slider
-		nValueAmt = ((sliderHandle.x - sliderBar.x) / sliderBar.w) * 100; //100 is max number of values we are allowing
+		nValueAmt = ((sliderHandle.x - sliderBar.x) / sliderBar.w) * nMaxArrayValue;
 
 		// Prevent nValueAmt from being 0
 		if (nValueAmt < 1) nValueAmt = 1;
@@ -122,7 +127,7 @@ public:
 
 		// New array Button
 		DrawRect(10, 10, 150, 50, olc::BLUE);
-		DrawString(20, 30, "Create New Array");
+		DrawString(20, 30, "Randomize Values");
 
 		// Draw Bars
 		float widthPerBar = (ScreenWidth() * 0.8f) / nValueAmt; // Use 80% of screen width
