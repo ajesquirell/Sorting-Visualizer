@@ -32,7 +32,7 @@ public:
 	};
 
 private:
-	int nMaxArrayValue = 200;
+	int nMaxValueAmt = 200;
 
 	int nValueAmt; // Number of random numbers to sort
 	int* pValueArray; //Array to hold random values
@@ -48,7 +48,7 @@ public:
 	bool OnUserCreate() override
 	{
 		srand(time(0)); // Seed the rng with time
-		nValueAmt = nMaxArrayValue; //For now this NEEDS to match max value of values we want to be able to have
+		nValueAmt = nMaxValueAmt; //For now this NEEDS to match max value of values we want to be able to have
 		pValueArray = new int[nValueAmt];
 		CreateNewArray();
 
@@ -118,16 +118,22 @@ public:
 		}
 
 		// Adjust nValueAmt based on slider
-		nValueAmt = ((sliderHandle.x - sliderBar.x) / sliderBar.w) * nMaxArrayValue;
+		nValueAmt = ((sliderHandle.x - sliderBar.x) / sliderBar.w) * nMaxValueAmt;
 
 		// Prevent nValueAmt from being 0
 		if (nValueAmt < 1) nValueAmt = 1;
 
 		/*===== Draw to screen =====*/
 
-		// New array Button
+		// Randomize Values Button
 		DrawRect(10, 10, 150, 50, olc::BLUE);
 		DrawString(20, 30, "Randomize Values");
+
+		// Run Sorting Algorithm button
+		DrawRect(200, 10, 190, 50, olc::GREEN);
+		DrawString(210, 30, "Run Sorting Algorithm");
+
+
 
 		// Draw Bars
 		float widthPerBar = (ScreenWidth() * 0.8f) / nValueAmt; // Use 80% of screen width
@@ -152,7 +158,7 @@ public:
 
 	void CreateNewArray()
 	{
-		for (int x = 0; x < nValueAmt; x++)
+		for (int x = 0; x < nMaxValueAmt; x++) //Used to be nValueAmt to only randomize a certain number of values in the array, for sorting smaller data sets.
 		{
 			//nValues[x] = 5 + rand() / (RAND_MAX / (1000 - 5 + 1) + 1);
 			pValueArray[x] = rand() % (995 + 1) + 5;
