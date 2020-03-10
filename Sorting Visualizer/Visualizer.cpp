@@ -44,15 +44,19 @@ private:
 	int* pValueArray; //Array to hold random values
 	olc::Pixel* pColorArray; //Array to hold color of value bars to visualize sorting process
 
+	int nPanAmt = 0;
+
 	Point sliderHandle;
 	Point sliderBar;
-
-	Point sliderHandle2;
-	Point sliderBar2;
+	bool bMovingSlider = false;
+	Point sliderHandle_Time;
+	Point sliderBar_Time;
+	bool bMovingSlider_Time = false;
+	Point sliderHandle_Pan;
+	Point sliderBar_Pan;
+	bool bMovingSlider_Pan = false;
 
 	float fPrevMouseX = NULL;
-	bool bMovingSlider = false;
-	bool bMovingSlider2 = false;
 
 	std::thread workerThread;
 
@@ -69,17 +73,25 @@ public:
 		sliderBar.w = 500;
 		sliderBar.x = ScreenWidth() / 2 - sliderBar.w / 2;
 		sliderBar.y = ScreenHeight() / 8;
-		sliderHandle.x = sliderBar.x + sliderBar.w / 2;
+		sliderHandle.x = sliderBar.x + sliderBar.w;
 		sliderHandle.y = sliderBar.y + sliderBar.h / 2;
 		sliderHandle.r = 10;
 
-		sliderBar2.h = 5;
-		sliderBar2.w = 500;
-		sliderBar2.x = ScreenWidth() / 2 - sliderBar2.w / 2;
-		sliderBar2.y = ScreenHeight() / 8 + 40;
-		sliderHandle2.x = sliderBar2.x + sliderBar2.w / 2;
-		sliderHandle2.y = sliderBar2.y + sliderBar2.h / 2;
-		sliderHandle2.r = 10;
+		sliderBar_Time.h = 5;
+		sliderBar_Time.w = 500;
+		sliderBar_Time.x = ScreenWidth() / 2 - sliderBar_Time.w / 2;
+		sliderBar_Time.y = ScreenHeight() / 8 + 40;
+		sliderHandle_Time.x = sliderBar_Time.x + sliderBar_Time.w / 2;
+		sliderHandle_Time.y = sliderBar_Time.y + sliderBar_Time.h / 2;
+		sliderHandle_Time.r = 10;
+
+		sliderBar_Pan.h = 5;
+		sliderBar_Pan.w = 500;
+		sliderBar_Pan.x = ScreenWidth() / 2 - sliderBar_Pan.w / 2;
+		sliderBar_Pan.y = ScreenHeight() - 100;
+		sliderHandle_Pan.x = sliderBar_Pan.x;
+		sliderHandle_Pan.y = sliderBar_Pan.y + sliderBar_Pan.h / 2;
+		sliderHandle_Pan.r = 10;
 
 		return true;
 	}
@@ -147,39 +159,68 @@ public:
 				if (sliderHandle.x > (sliderBar.x + sliderBar.w))
 					sliderHandle.x = sliderBar.x + sliderBar.w;
 			}
-			/*=====================================Slider 2==========================================================*/
+			/*=====================================Time Slider==========================================================*/
 			// Pythagorian Theorem to find if mouse is within slider handle radius
-			if (sqrt(((GetMouseX() - sliderHandle2.x) * (GetMouseX() - sliderHandle2.x)) + ((GetMouseY() - sliderHandle2.y) * (GetMouseY() - sliderHandle2.y))) <= sliderHandle2.r)
+			if (sqrt(((GetMouseX() - sliderHandle_Time.x) * (GetMouseX() - sliderHandle_Time.x)) + ((GetMouseY() - sliderHandle_Time.y) * (GetMouseY() - sliderHandle_Time.y))) <= sliderHandle_Time.r)
 			{
 				if (GetMouse(0).bHeld)
-					bMovingSlider2 = true;
+					bMovingSlider_Time = true;
 			}
 
 			if (!GetMouse(0).bHeld) // Stop tracking mouse movement to move slider handle
-				bMovingSlider2 = false;
+				bMovingSlider_Time = false;
 
 			/*if (GetMouseX() > sliderBar.x + sliderBar.w + sliderHandle.r || GetMouseX() < sliderBar.x - sliderHandle.r)
 				bMovingSlider = false;*/
 
-			if (bMovingSlider2) // This is here so that mouse does not have to stay within slider handle circle to move it
+			if (bMovingSlider_Time) // This is here so that mouse does not have to stay within slider handle circle to move it
 			{
 				//sliderHandle.x += GetMouseX() - fPrevMouseX;
-				sliderHandle2.x = GetMouseX();
+				sliderHandle_Time.x = GetMouseX();
 
 				// Clamp slider handle to the bounds of the slider bar
-				if (sliderHandle2.x < sliderBar2.x)
-					sliderHandle2.x = sliderBar2.x;
-				if (sliderHandle2.x > (sliderBar2.x + sliderBar2.w))
-					sliderHandle2.x = sliderBar2.x + sliderBar2.w;
+				if (sliderHandle_Time.x < sliderBar_Time.x)
+					sliderHandle_Time.x = sliderBar_Time.x;
+				if (sliderHandle_Time.x > (sliderBar_Time.x + sliderBar_Time.w))
+					sliderHandle_Time.x = sliderBar_Time.x + sliderBar_Time.w;
 			}
-			/*=============================================Slider 2 end=====================================================*/
+			/*=================================================Time Slider end=====================================================*/
+						/*=====================================Pan Slider==========================================================*/
+			// Pythagorian Theorem to find if mouse is within slider handle radius
+			if (sqrt(((GetMouseX() - sliderHandle_Pan.x) * (GetMouseX() - sliderHandle_Pan.x)) + ((GetMouseY() - sliderHandle_Pan.y) * (GetMouseY() - sliderHandle_Pan.y))) <= sliderHandle_Pan.r)
+			{
+				if (GetMouse(0).bHeld)
+					bMovingSlider_Pan = true;
+			}
+
+			if (!GetMouse(0).bHeld) // Stop tracking mouse movement to move slider handle
+				bMovingSlider_Pan = false;
+
+			/*if (GetMouseX() > sliderBar.x + sliderBar.w + sliderHandle.r || GetMouseX() < sliderBar.x - sliderHandle.r)
+				bMovingSlider = false;*/
+
+			if (bMovingSlider_Pan) // This is here so that mouse does not have to stay within slider handle circle to move it
+			{
+				//sliderHandle.x += GetMouseX() - fPrevMouseX;
+				sliderHandle_Pan.x = GetMouseX();
+
+				// Clamp slider handle to the bounds of the slider bar
+				if (sliderHandle_Pan.x < sliderBar_Pan.x)
+					sliderHandle_Pan.x = sliderBar_Pan.x;
+				if (sliderHandle_Pan.x > (sliderBar_Pan.x + sliderBar_Pan.w))
+					sliderHandle_Pan.x = sliderBar_Pan.x + sliderBar_Pan.w;
+			}
+			/*=============================================Pan Slider end=====================================================*/
 		}
 
 		// Adjust nValueAmt based on slider
 		nValueAmt = ((sliderHandle.x - sliderBar.x) / sliderBar.w) * nMaxValueAmt;
 
 		// Adjust sort tick time based on slider2
-		s_SortTickTime = ((sliderHandle2.x - sliderBar2.x) / sliderBar2.w) * 50;
+		s_SortTickTime = ((sliderHandle_Time.x - sliderBar_Time.x) / sliderBar_Time.w) * 50;
+
+		//Adjust pan based on pan slider
+		nPanAmt = ((sliderHandle_Pan.x - sliderBar_Pan.x) / sliderBar_Pan.w) * (nMaxValueAmt - nValueAmt);
 
 		// Prevent nValueAmt from being 0
 		if (nValueAmt < 1) nValueAmt = 1;
@@ -199,26 +240,36 @@ public:
 
 		for (int x = 0; x < nValueAmt; x++)
 		{
+			if (nValueAmt + nPanAmt > nMaxValueAmt) nPanAmt = nMaxValueAmt - nValueAmt;
+
 			// Math to center the bars on screen, no matter the number of bars or screen size
-			FillRect((ScreenWidth() * 0.1f) + (widthPerBar * (1.0f / 6)) + (x * widthPerBar), 200, widthPerBar * (2.0f / 3), (pValueArray[x] / 1000.0f) * 200.0f, pColorArray[x]);
+			FillRect((ScreenWidth() * 0.1f) + (widthPerBar * (1.0f / 6)) + (x * widthPerBar), 200, widthPerBar * (2.0f / 3), (pValueArray[x + nPanAmt] / 1000.0f) * 200.0f, pColorArray[x + nPanAmt]);
 		}
 
 		//// Draw Slider Bars and Handles
 		FillRect(sliderBar.x, sliderBar.y, sliderBar.w, sliderBar.h, olc::RED);
 		FillCircle(sliderHandle.x, sliderHandle.y, sliderHandle.r);
 
-		FillRect(sliderBar2.x, sliderBar2.y, sliderBar2.w, sliderBar2.h, olc::MAGENTA);
-		FillCircle(sliderHandle2.x, sliderHandle2.y, sliderHandle2.r);
+		FillRect(sliderBar_Time.x, sliderBar_Time.y, sliderBar_Time.w, sliderBar_Time.h, olc::MAGENTA);
+		FillCircle(sliderHandle_Time.x, sliderHandle_Time.y, sliderHandle_Time.r);
+
+		FillRect(sliderBar_Pan.x, sliderBar_Pan.y, sliderBar_Pan.w, sliderBar_Pan.h, olc::DARK_GREEN);
+		FillCircle(sliderHandle_Pan.x, sliderHandle_Pan.y, sliderHandle_Pan.r);
 
 		////Draw nValueAmt
 		DrawString(sliderHandle.x - 7, sliderHandle.y - sliderHandle.r - 10, to_string(nValueAmt));
 
 		//Draw s_SortTickTime
-		DrawString(sliderHandle2.x - 7, sliderHandle2.y - sliderHandle2.r - 10, to_string(s_SortTickTime) + "ms");
+		DrawString(sliderHandle_Time.x - 7, sliderHandle_Time.y - sliderHandle_Time.r - 10, to_string(s_SortTickTime) + "ms");
+
+		//Draw <--  --> for pan slider
+		DrawString(sliderHandle_Pan.x - 31, sliderHandle_Pan.y + sliderHandle_Time.r + 10, "<------>");
+		DrawString(sliderHandle_Pan.x - 7, sliderHandle_Pan.y - sliderHandle_Pan.r - 10, to_string(nPanAmt));
 
 		
 		fPrevMouseX = GetMouseX(); //For tracking last frame's mouse movement
 
+		// Check if sort has finished, and join the threads if ready
 		if (s_SortFinished)
 		{
 			if (workerThread.joinable())
@@ -287,7 +338,7 @@ int Partition(int arr[], int low, int high, olc::Pixel cArr[]) // We could just 
 		cArr[j] = olc::WHITE;
 	}
 
-	cout << "\nSwap " << arr[i + 1] << " and " << arr[high] << "  (P)" << endl;
+	cout << "\nSwap " << arr[i + 1] << " and " << arr[high] << "   (Pivot)" << endl;
 	swap(arr[i + 1], arr[high]); // Put pivot element in its place
 	cArr[i + 1] = olc::GREEN; //Pivot is in correct place, make it green
 
