@@ -10,6 +10,7 @@ static bool s_SortFinished = false;
 static int s_SortTickTime = 1; // Will be in ms
 
 void QuickSortInitial(int arr[], int low, int high, olc::Pixel colorArray[]);
+void BubbleSort(int arr[], int n, olc::Pixel cArr[]);
 
 class SortingVisualizer : public olc::PixelGameEngine
 {
@@ -121,12 +122,25 @@ public:
 					CreateNewArray(); //Later pass in value for selected array size
 				}
 			}
-			/*==================================================*/
 
-			/*============== SORT BUTTON ===================*/
+
+			/*============== SORT ALGORITHM BUTTON ===================*/
 			if (GetMouseX() >= 200 && GetMouseX() <= 390 && GetMouseY() >= 10 && GetMouseY() <= 60)
 			{
 				FillRect(201, 11, 189, 49, olc::DARK_GREEN);
+				if (GetMouse(0).bReleased)
+				{
+					workerThread = std::thread(BubbleSort, pValueArray, 200, pColorArray);
+					//workerThread = std::thread(QuickSortInitial, pValueArray, 0, 200 - 1, pColorArray);
+					//std::async(std::launch::async, &QuickSortInitial, pValueArray, 0, 200 - 1, pColorArray);
+					//QuickSort(pValueArray, 0, 200 - 1, pColorArray);
+				}
+			}
+
+			/*============== QUICK SORT BUTTON ===================*/
+			if (GetMouseX() >= 430 && GetMouseX() <= 580 && GetMouseY() >= 10 && GetMouseY() <= 60)
+			{
+				FillRect(431, 11, 149, 49, olc::DARK_YELLOW);
 				if (GetMouse(0).bReleased)
 				{
 					workerThread = std::thread(QuickSortInitial, pValueArray, 0, 200 - 1, pColorArray);
@@ -134,7 +148,17 @@ public:
 					//QuickSort(pValueArray, 0, 200 - 1, pColorArray);
 				}
 			}
-			/*==============================================*/
+
+			/*============== BUBBLE SORT BUTTON ===================*/
+			if (GetMouseX() >= 620 && GetMouseX() <= 770 && GetMouseY() >= 10 && GetMouseY() <= 60)
+			{
+				FillRect(621, 11, 149, 49, olc::DARK_YELLOW);
+				if (GetMouse(0).bReleased)
+				{
+					workerThread = std::thread(BubbleSort, pValueArray, 200, pColorArray);
+				}
+			}
+
 			// Pythagorian Theorem to find if mouse is within slider handle radius
 			if (sqrt(((GetMouseX() - sliderHandle.x) * (GetMouseX() - sliderHandle.x)) + ((GetMouseY() - sliderHandle.y) * (GetMouseY() - sliderHandle.y))) <= sliderHandle.r)
 			{
@@ -235,6 +259,14 @@ public:
 		DrawRect(200, 10, 190, 50, olc::GREEN);
 		DrawString(210, 30, "Run Sorting Algorithm");
 
+		// Quick Sort button
+		DrawRect(430, 10, 150, 50, olc::YELLOW);
+		DrawString(440, 30, "Quick Sort");
+
+		// Bubble Sort button
+		DrawRect(620, 10, 150, 50, olc::VERY_DARK_YELLOW);
+		DrawString(630, 30, "Bubble Sort");
+
 		//Draw Value Bars
 		float widthPerBar = (ScreenWidth() * 0.8f) / nValueAmt; // Use 80% of screen width
 
@@ -243,7 +275,7 @@ public:
 			if (nValueAmt + nPanAmt > nMaxValueAmt) nPanAmt = nMaxValueAmt - nValueAmt;
 
 			// Math to center the bars on screen, no matter the number of bars or screen size
-			FillRect((ScreenWidth() * 0.1f) + (widthPerBar * (1.0f / 6)) + (x * widthPerBar), 200, widthPerBar * (2.0f / 3), (pValueArray[x + nPanAmt] / 1000.0f) * 200.0f, pColorArray[x + nPanAmt]);
+			FillRect((ScreenWidth() * 0.1f) + (widthPerBar * (1.0f / 6)) + (x * widthPerBar), 550.0f - floor(((pValueArray[x + nPanAmt] / 1000.0f) * 300.0f)), widthPerBar * (2.0f / 3), (pValueArray[x + nPanAmt] / 1000.0f) * 300.0f, pColorArray[x + nPanAmt]);
 		}
 
 		//// Draw Slider Bars and Handles
@@ -299,16 +331,14 @@ public:
 			pColorArray[x] = olc::WHITE;
 		}
 	}
-
-
-	void swap(int& a, int& b)
-	{
-		int t = a;
-		a = b;
-		b = t;
-	}
-
 };
+
+void swap(int& a, int& b) //c++ has a built in swap, we could just delete this and it would still work
+{
+	int t = a;
+	a = b;
+	b = t;
+}
 
 /*==================== QUICK SORT ====================*/
 int Partition(int arr[], int low, int high, olc::Pixel cArr[]) // We could just reference pColorArray directly, but put it as function argument for clarity of its dependencies.
@@ -372,6 +402,38 @@ void QuickSortInitial(int arr[], int low, int high, olc::Pixel colorArray[])
 		// First pivot now in its place in array, continue with rest of elements on either side of pivot
 		QuickSort(arr, low, partitionIndex - 1, colorArray);
 		QuickSort(arr, partitionIndex + 1, high, colorArray);
+	}
+	s_SortFinished = true;
+}
+/*============================================================================================================*/
+/*=================================================Bubble Sort===========================================================*/
+void BubbleSort(int arr[], int n, olc::Pixel cArr[])
+{
+	for (int i = 0; i < n - 1; i++)
+	{
+		bool bSwapOccurred = false;
+		for (int j = 0; j < n - i - 1; j++)
+		{
+			cArr[j] = olc::MAGENTA;
+			cArr[j + 1] = olc::DARK_MAGENTA;
+			// Optional brief pause to give user more time to see what is happening
+			std::this_thread::sleep_for(std::chrono::milliseconds(s_SortTickTime));
+
+			if (arr[j] > arr[j + 1])
+			{
+				swap(arr[j], arr[j + 1]);
+				bSwapOccurred = true;
+			}
+
+			cArr[j] = olc::WHITE;
+			cArr[j + 1] = olc::GREEN;
+		}
+		if (!bSwapOccurred) // If we pass through and no swaps occurred, list is sorted. Stop.
+		{
+			for (int h = 0; h < n - i - 1; h++)
+				cArr[h] = olc::GREEN;
+			break;
+		}
 	}
 	s_SortFinished = true;
 }
