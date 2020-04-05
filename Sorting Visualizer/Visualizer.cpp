@@ -57,7 +57,7 @@ private:
 	Point sliderBar_Pan;
 	bool bMovingSlider_Pan = false;
 
-	bool bShowSortButtons = false;
+	int nAlgoSelect = 0;
 
 	float fPrevMouseX = NULL;
 
@@ -132,19 +132,31 @@ public:
 				FillRect(1001, 11, 189, 49, olc::DARK_GREEN);
 				if (GetMouse(0).bReleased)
 				{
-					bShowSortButtons = !bShowSortButtons;
+					switch (nAlgoSelect)
+					{
+					case 0: // Quick Sort
+					{
+						workerThread = std::thread(QuickSortInitial, pValueArray, 0, 200 - 1, pColorArray);
+						break;
+					}
+					case 1: // Bubble Sort
+					{
+						workerThread = std::thread(BubbleSort, pValueArray, 200, pColorArray);
+						break;
+					}
+					}
+
 				}
 			}
 
-			if (bShowSortButtons)
-			{
 				/*============== QUICK SORT BUTTON ===================*/
 				if (GetMouseX() >= 430 && GetMouseX() <= 580 && GetMouseY() >= 10 && GetMouseY() <= 60)
 				{
 					FillRect(431, 11, 149, 49, olc::DARK_YELLOW);
 					if (GetMouse(0).bReleased)
 					{
-						workerThread = std::thread(QuickSortInitial, pValueArray, 0, 200 - 1, pColorArray);
+						nAlgoSelect = 0;
+						//workerThread = std::thread(QuickSortInitial, pValueArray, 0, 200 - 1, pColorArray);
 						//std::async(std::launch::async, &QuickSortInitial, pValueArray, 0, 200 - 1, pColorArray);
 						//QuickSort(pValueArray, 0, 200 - 1, pColorArray);
 					}
@@ -156,10 +168,10 @@ public:
 					FillRect(621, 11, 149, 49, olc::DARK_YELLOW);
 					if (GetMouse(0).bReleased)
 					{
-						workerThread = std::thread(BubbleSort, pValueArray, 200, pColorArray);
+						nAlgoSelect = 1;
+						//workerThread = std::thread(BubbleSort, pValueArray, 200, pColorArray);
 					}
 				}
-			}
 
 			// Pythagorian Theorem to find if mouse is within slider handle radius
 			if (sqrt(((GetMouseX() - sliderHandle.x) * (GetMouseX() - sliderHandle.x)) + ((GetMouseY() - sliderHandle.y) * (GetMouseY() - sliderHandle.y))) <= sliderHandle.r)
@@ -261,16 +273,15 @@ public:
 		DrawRect(1000, 10, 190, 50, olc::GREEN);
 		DrawString(1010, 30, "Run Sorting Algorithm");
 
-		if (bShowSortButtons)
-		{
 			// Quick Sort button
+			if (nAlgoSelect == 0) FillRect(431, 11, 149, 49, olc::DARK_GREEN);
 			DrawRect(430, 10, 150, 50, olc::YELLOW);
 			DrawString(440, 30, "Quick Sort");
 
 			// Bubble Sort button
+			if (nAlgoSelect == 1) FillRect(621, 11, 149, 49, olc::DARK_GREEN);
 			DrawRect(620, 10, 150, 50, olc::VERY_DARK_YELLOW);
 			DrawString(630, 30, "Bubble Sort");
-		}
 
 		//Draw Value Bars
 		float widthPerBar = (ScreenWidth() * 0.8f) / nValueAmt; // Use 80% of screen width
