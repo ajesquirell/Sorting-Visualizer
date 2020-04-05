@@ -57,6 +57,8 @@ private:
 	Point sliderBar_Pan;
 	bool bMovingSlider_Pan = false;
 
+	bool bShowSortButtons = false;
+
 	float fPrevMouseX = NULL;
 
 	std::thread workerThread;
@@ -125,37 +127,37 @@ public:
 
 
 			/*============== SORT ALGORITHM BUTTON ===================*/
-			if (GetMouseX() >= 200 && GetMouseX() <= 390 && GetMouseY() >= 10 && GetMouseY() <= 60)
+			if (GetMouseX() >= 1000 && GetMouseX() <= 1190 && GetMouseY() >= 10 && GetMouseY() <= 60)
 			{
-				FillRect(201, 11, 189, 49, olc::DARK_GREEN);
+				FillRect(1001, 11, 189, 49, olc::DARK_GREEN);
 				if (GetMouse(0).bReleased)
 				{
-					workerThread = std::thread(BubbleSort, pValueArray, 200, pColorArray);
-					//workerThread = std::thread(QuickSortInitial, pValueArray, 0, 200 - 1, pColorArray);
-					//std::async(std::launch::async, &QuickSortInitial, pValueArray, 0, 200 - 1, pColorArray);
-					//QuickSort(pValueArray, 0, 200 - 1, pColorArray);
+					bShowSortButtons = !bShowSortButtons;
 				}
 			}
 
-			/*============== QUICK SORT BUTTON ===================*/
-			if (GetMouseX() >= 430 && GetMouseX() <= 580 && GetMouseY() >= 10 && GetMouseY() <= 60)
+			if (bShowSortButtons)
 			{
-				FillRect(431, 11, 149, 49, olc::DARK_YELLOW);
-				if (GetMouse(0).bReleased)
+				/*============== QUICK SORT BUTTON ===================*/
+				if (GetMouseX() >= 430 && GetMouseX() <= 580 && GetMouseY() >= 10 && GetMouseY() <= 60)
 				{
-					workerThread = std::thread(QuickSortInitial, pValueArray, 0, 200 - 1, pColorArray);
-					//std::async(std::launch::async, &QuickSortInitial, pValueArray, 0, 200 - 1, pColorArray);
-					//QuickSort(pValueArray, 0, 200 - 1, pColorArray);
+					FillRect(431, 11, 149, 49, olc::DARK_YELLOW);
+					if (GetMouse(0).bReleased)
+					{
+						workerThread = std::thread(QuickSortInitial, pValueArray, 0, 200 - 1, pColorArray);
+						//std::async(std::launch::async, &QuickSortInitial, pValueArray, 0, 200 - 1, pColorArray);
+						//QuickSort(pValueArray, 0, 200 - 1, pColorArray);
+					}
 				}
-			}
 
-			/*============== BUBBLE SORT BUTTON ===================*/
-			if (GetMouseX() >= 620 && GetMouseX() <= 770 && GetMouseY() >= 10 && GetMouseY() <= 60)
-			{
-				FillRect(621, 11, 149, 49, olc::DARK_YELLOW);
-				if (GetMouse(0).bReleased)
+				/*============== BUBBLE SORT BUTTON ===================*/
+				if (GetMouseX() >= 620 && GetMouseX() <= 770 && GetMouseY() >= 10 && GetMouseY() <= 60)
 				{
-					workerThread = std::thread(BubbleSort, pValueArray, 200, pColorArray);
+					FillRect(621, 11, 149, 49, olc::DARK_YELLOW);
+					if (GetMouse(0).bReleased)
+					{
+						workerThread = std::thread(BubbleSort, pValueArray, 200, pColorArray);
+					}
 				}
 			}
 
@@ -256,16 +258,19 @@ public:
 		DrawString(20, 30, "Randomize Values");
 
 		// Run Sorting Algorithm button
-		DrawRect(200, 10, 190, 50, olc::GREEN);
-		DrawString(210, 30, "Run Sorting Algorithm");
+		DrawRect(1000, 10, 190, 50, olc::GREEN);
+		DrawString(1010, 30, "Run Sorting Algorithm");
 
-		// Quick Sort button
-		DrawRect(430, 10, 150, 50, olc::YELLOW);
-		DrawString(440, 30, "Quick Sort");
+		if (bShowSortButtons)
+		{
+			// Quick Sort button
+			DrawRect(430, 10, 150, 50, olc::YELLOW);
+			DrawString(440, 30, "Quick Sort");
 
-		// Bubble Sort button
-		DrawRect(620, 10, 150, 50, olc::VERY_DARK_YELLOW);
-		DrawString(630, 30, "Bubble Sort");
+			// Bubble Sort button
+			DrawRect(620, 10, 150, 50, olc::VERY_DARK_YELLOW);
+			DrawString(630, 30, "Bubble Sort");
+		}
 
 		//Draw Value Bars
 		float widthPerBar = (ScreenWidth() * 0.8f) / nValueAmt; // Use 80% of screen width
